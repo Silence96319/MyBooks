@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>algorithm-BST</title>
+</head>
+
+<body>
+  <script>
+    //节点构造函数
+    function Node(data = 0, left = null, right = null) {
+      this.data = data
+      this.left = left
+      this.right = right
+    }
+
+    //二叉树构造函数
+    function Bst() {
+      this.root = null
+      this.line = 0
+    }
+
+    //初始化方法
+    //插入节点方法
+    Bst.prototype.insert = function(data) {
+      let newNode = new Node(data, null, null)
+      if (!this.root) {
+        this.root = newNode
+      } else {
+        let currentNode = this.root
+        while (true) {
+          //使用变量parent保存当前对象的指针
+          let parent = currentNode
+          if (newNode.data < currentNode.data) {
+            currentNode = currentNode.left
+            if (currentNode === null) {
+              //这个位置是parent的left指向这个新的对象。而不是currentNode 指向这个对象，那样就会切断currentNode 指向currentNode.left 这个对象的引用
+              parent.left = newNode
+              break
+            }
+          } else {
+            currentNode = currentNode.right
+            if (currentNode === null) {
+              parent.right = newNode
+              break
+            }
+          }
+        }
+      }
+    }
+
+    //遍历方法
+    Bst.prototype.inOrder = function(node) {
+      //递归思想！！！
+      //==========中序查找===========
+      //当元素不为空的时候，
+      //首先打印该元素的左边
+      //其次打印该元素本身
+      //最后打印该元素的右边
+
+      //初始值是叶子节点：
+      //左边不执行，本身自己打印，右边不执行
+
+      if (!(node === null)) {
+        this.inOrder(node.left)
+        console.log(node.data)
+        this.inOrder(node.right)
+      }
+
+      //==========先序查找===========
+      // if (!(node === null)) {
+      //   console.log(node.data)
+      //   this.inOrder(node.left)
+      //   this.inOrder(node.right)
+      // }
+
+      //==========后序查找===========
+      // if (!(node === null)) {
+      //   this.inOrder(node.left)
+      //   this.inOrder(node.right)
+      //   console.log(node.data)
+      // }
+
+    }
+
+    //查找最小值方法
+    Bst.prototype.getMin = function(node) {
+      let currentNode = node
+      while (!(currentNode.left === null)) {
+        currentNode = currentNode.left
+      }
+      return currentNode
+    }
+
+    //查找最大值方法
+    Bst.prototype.getMax = function(node) {
+      let currentNode = node
+      while (!(currentNode.right === null)) {
+        currentNode = currentNode.right
+      }
+      return currentNode
+    }
+
+    //查找给定值方法
+    Bst.prototype.find = function(data) {
+      let currentNode = this.root
+
+      while (!(currentNode === null)) {
+        if (currentNode.data === data) {
+          return currentNode
+        } else if (currentNode.data > data) {
+          currentNode = currentNode.left
+        } else {
+          currentNode = currentNode.right
+        }
+      }
+
+      return null
+    }
+
+    //删除节点方法
+    Bst.prototype.remove = function(data) {
+      //由于子节点可能是同样的值，所以在删除之后需要判断一下是否删除完了
+      while (this.find(data)) {
+        //调用删除节点的方法，接收删除数据后的根节点
+        this.root = this.removeNode(this.root, data);
+      }
+    }
+
+    /**
+     *  [删除二叉树中的某个节点]
+     *  @method
+     *  @param  {[type]} node [包含删除数据的节点]
+     *  @param  {[type]} data [需要删除的数据]
+     *  @return {[type]}      [删除数据后的节点]
+     */
+    Bst.prototype.removeNode = function(node, data) {
+      //如果当前节点不存在，说明该二叉树中没有该数据，返回null相当于没有删除数据
+      if (node == null) {
+        return null;
+      }
+
+      //当找到了该数据的时候
+      if (data == node.data) {
+
+        // 如果该节点没有子节点，那么直接删除这个节点就行了
+        if (node.left == null && node.right == null) {
+          return null;
+        }
+
+        // 如果节点没有左子节点，那么将父节点的子节点直接指向该节点的右节点
+        if (node.left == null) {
+          return node.right;
+        }
+
+        // 如果节点没有右子节点，那么将父节点的子节点直接指向该节点的左节点
+        if (node.right == null) {
+          return node.left;
+        }
+
+        // 固若该节点有两个子节点，那么用右侧子节点中的最小值或者左侧子节点中的最大值代替该节点
+        var tempNode = this.getMin(node.right);
+        node.data = tempNode.data;
+        // 然后删除那个替代的子节点（这个子节点是叶子节点）
+        node.right = this.removeNode(node.right, tempNode.data);
+        return node;
+      }
+
+      //如果要删除的数据小于当前节点的数据，
+      //那么在在节点的左边删除数据。返回删除数据后的节点
+      else if (data < node.data) {
+        node.left = this.removeNode(node.left, data);
+        return node;
+      }
+      //如果要删除的数据大于当前节点的数据，
+      //那么在在节点的右边删除数据。返回删除数据后的节点
+      else {
+        node.right = this.removeNode(node.right, data);
+        return node;
+      }
+    }
+
+    //数连接节点的线的数量
+    Bst.prototype.countLine = function(currentNode) {
+      if (currentNode.left) {
+        this.line++
+          this.countLine(currentNode.left)
+      }
+      if (currentNode.right) {
+        this.line++
+          this.countLine(currentNode.right)
+      }
+      return this.line
+    }
+
+    //实例化二叉树对象
+    let nums = new Bst()
+    nums.insert(23)
+    nums.insert(45)
+    nums.insert(16)
+    nums.insert(37)
+    nums.insert(3)
+    nums.insert(99)
+    nums.insert(37)
+    nums.insert(37)
+    nums.insert(37)
+    nums.insert(37)
+    nums.insert(22)
+    nums.insert(37)
+    nums.remove(37)
+    nums.inOrder(nums.root)
+    console.log(nums.countLine(nums.root))
+    // console.log(nums.getMin(nums.root))
+    // console.log(nums.getMax(nums.root))
+    // console.log(nums.find(45))
+    // console.log(nums.find(33))
+  </script>
+</body>
+
+</html>
