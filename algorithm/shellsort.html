@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>希尔排序</title>
+</head>
+
+<body>
+  <script>
+    let arr = []
+    for (let i = 0; i < 1000000; i++) {
+      arr.push(parseInt(Math.random() * 50000))
+    }
+
+    //希尔排序，在插入排序的而基础之上改进了排序的间隔
+    function shellsort(arr) {
+      let gaps = [701, 301, 132, 57, 23, 10, 4, 1]
+      for (let g = 0; g < gaps.length; g++) {
+        for (let i = arr[g]; i < arr.length; i++) {
+          let temp = arr[i]
+          let j = i
+          for (j; j >= gaps[g] && arr[j - gaps[g]] > temp; j -= gaps[g]) {
+            arr[j] = arr[j - gaps[g]]
+          }
+          arr[j] = temp
+        }
+      }
+      return arr
+    }
+
+    let start = Date.now()
+    console.log(shellsort(arr))
+    let end = Date.now()
+    console.log(end - start)
+    //100万的数据花了3344ms
+    //10万的数据花了80ms
+    //通过改变gaps可以很有效的缩短时间
+  </script>
+</body>
+
+</html>
