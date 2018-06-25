@@ -43,7 +43,7 @@
     - 注意：返回的是其它数组的浅拷贝，对于新数组的任何操作（仅当元素不是对象引用时）都不会对原始数组产生影响，反之亦然
     
   ---
-  -  array.splice(start[, deleteCount[, item1[, item2[, ...]]]])
+  - array.splice(start[, deleteCount[, item1[, item2[, ...]]]])
     - 作用：对原数组进行操作：删除数组元素，增加数组元素。返回新的（删除的元素组成的）数组
     - 返回值：
       - 由被    ——删除——   的元素组成的一个数组 ====> 如果是增添元素，则返回一个空的数组
@@ -174,7 +174,7 @@
 
 - 用途
   1. 数制间的转换
-     -  依次每个位上得到的值压入栈
+     - 依次每个位上得到的值压入栈
      - 当没有余数的时候，将栈内元素弹出知道栈为空
      - 将弹出的元素排列成字符串形式
   2. 回文：一个单词、短语或数字，从前往后写和从后往前写都是一样的。 
@@ -287,11 +287,18 @@
   - Dictionay 类的基础是 Array 类，而不是 Object 类 
   - 字典的主要用途是通过键取值，我们无须太关心数据在字典中的实际存储顺序。然而，很 多人都希望看到一个有序的字典 
 
+
+
+
+
+
+
 散列
 
 - 介绍：
-  - 散列是一种常用的数据存储技术，散列后的数据可以快速地插入或取用。
-  -  散列使用的数据 结构叫做散列表。 
+  - 散列是一种常用的数据存储技术，
+  - 散列后的数据可以快速地插入或取用。
+  - 散列使用的数据 结构叫做散列表。 
 
 
 
@@ -488,9 +495,9 @@
             /**
              *  [删除二叉树中的某个节点]
              *  @method
-             *  @param  {[type]} node [包含删除数据的节点]
-             *  @param  {[type]} data [需要删除的数据]
-             *  @return {[type]}      [删除数据后的节点]
+             *  @param  {[Object]} node [包含删除数据的节点]
+             *  @param  {[Number]} data [需要删除的数据]
+             *  @return {[Object]}      [删除数据后的节点]
              */
             Bst.prototype.removeNode = function(node, data) {
               //如果当前节点不存在，说明该二叉树中没有该数据，返回null相当于没有删除数据
@@ -516,7 +523,7 @@
                   return node.left;
                 }
         
-                // 固若该节点有两个子节点，那么用右侧子节点中的最小值或者左侧子节点中的最大值代替该节点
+                // 如果该节点有两个子节点，那么用右侧子节点中的最小值或者左侧子节点中的最大值代替该节点=========>最好是选择右边，因为如果有重复的元素，以上的insert方法会将其插入到重复元素的右边。如果这时选择删除的是右边的元素的话，可能导致右边里面重复的元素被删除。所以这个时候选择用右边的最小值来替代而不是左边的最大值
                 var tempNode = this.getMin(node.right);
                 node.data = tempNode.data;
                 // 然后删除那个替代的子节点（这个子节点是叶子节点）
@@ -596,10 +603,597 @@
   - 如果两个顶点之间有路径，那么这两个顶点就是强连通的 
   - 如果有向图的所有 的顶点都是强连通的，那么这个有向图也是强连通的。 
 
+
+
+- 表示边 
+  - 表示图的边的方法称为邻接表或者邻接表数组 
+    - 将边存储为由顶点的相邻顶点列表构成的数组，并以此顶点作为索引 
+  - 另一种表示图边的方法被称为邻接矩阵。它是一个二维数组，其中的元素表示两个顶 点之间是否有一条边。 
+
+
+
+- 构建图
+          let Graph = function(v) {
+            this.vertices = v
+            this.edges = 0
+            this.arr = []
+          }
+      
+          //初始化图，生成二维数组
+          Graph.prototype.init = function() {
+            for (let i = 0; i < this.vertices; i++) {
+              this.arr[i] = []
+              this.arr[i].push('')
+            }
+          }
+      
+          //添加边
+          Graph.prototype.addEdges = function(v, w) {
+            this.arr[v].push(w)
+            this.arr[w].push(v)
+            this.edges++
+          }
+      
+          //显示图
+          Graph.prototype.showGraph = function() {
+            for (let i = 0; i < this.vertices; i++) {
+              console.log(i + '====>')
+              for (let j = 0; j < this.vertices; j++) {
+                if (this.arr[i][j] != undefined) {
+                  console.log(this.arr[i][j] + ' ')
+                }
+              }
+            }
+          }
+      
+      
+          //实例化图
+          let graph = new Graph(8)
+          graph.init()
+          graph.addEdges(1, 0)
+          graph.addEdges(0, 2)
+          graph.addEdges(1, 5)
+          graph.addEdges(4, 3)
+          graph.addEdges(4, 5)
+          graph.showGraph()
+
+
+
+- 搜索图
+  - 深度优先搜索
+    - 深度优先搜索包括从一条路径的起始顶点开始追溯，直到到达最后一个顶点，然后回溯， 继续追溯下一条路径，直到到达最后的顶点，如此往复，直到没有路径为止。这不是在搜 索特定的路径，而是通过搜索来查看在图中有哪些路径可以选择。 
+            //深度优先搜索
+            Graph.prototype.dfs = function(v) {
+              this.marked[v] = true
+              if (this.marked[v] != undefined) {
+                console.log(v);
+              }
+              for (let i = 0; i < this.arr[v].length; i++) {
+                if (!this.marked[this.arr[v][i]]) {
+                  this.dfs(this.arr[v][i])
+                }
+              }
+            }
+    
+  - 广度优先搜索
+    - 广度优先搜索从第一个顶点开始，尝试访问尽可能靠近它的顶点。本质上，这种搜索在图 上是逐层移动的，首先检查最靠近第一个顶点的层，再逐渐向下移动到离起始顶点最远的 层 
+            //构建图
+            let Graph = function(v) {
+              //顶点个数
+              this.vertices = v
+              //边的条数
+              this.edges = 0
+              //存储点与点之间的关系
+              this.arr = []
+              //用于判断哪个点已经被访问过了
+              this.marked = []
+              //用于存储点到点的指向
+              this.edgeTo = []
+              //
+              this.vertexList = []
+            }
+        
+            //初始化图，生成二维数组
+            Graph.prototype.init = function() {
+              for (let i = 0; i < this.vertices; i++) {
+                this.arr[i] = []
+                // this.arr[i].push('')
+                this.marked[i] = false
+              }
+            }
+        
+            //添加边
+            Graph.prototype.addEdge = function(v, w) {
+              this.arr[v].push(w)
+              this.arr[w].push(v)
+              this.edges++
+            }
+        
+            //显示图
+            Graph.prototype.showGraph = function() {
+              for (let i = 0; i < this.vertices; i++) {
+                let str = i + '====>'
+                for (let j = 0; j < this.vertices; j++) {
+                  if (this.arr[i][j] != undefined) {
+                    str += this.arr[i][j] + ' '
+                  }
+                }
+                console.log(str)
+              }
+            }
+        
+            //深度优先搜索
+            Graph.prototype.dfs = function(v) {
+              this.marked[v] = true
+        
+              if (this.arr[v] != undefined) {
+                console.log(v);
+              }
+        
+              for (let i = 0; i < this.arr[v].length; i++) {
+                if (!this.marked[this.arr[v][i]]) {
+                  this.dfs(this.arr[v][i])
+                }
+              }
+            }
+        
+            //广度优先搜索
+            Graph.prototype.bfs = function(s) {
+              //生成一个数列，专门用来存放遍历后的结果
+              //将每一层的数据追加到该队列的后面
+              let queue = []
+              this.marked[s] = true
+              queue.push(s)
+        
+              //遍历数列中的元素
+              while (queue.length > 0) {
+                let v = queue.shift()
+        
+                if (v !== undefined) {
+                  console.log(v)
+                }
+        
+                //循环遍历里面当前访问元素的所有子元素，并追加到队列之后
+                for (let i = 0; i < this.arr[v].length; i++) {
+        
+                  //因为每一个this.arr[v]都是一个数组，所以length属性都是存在的
+                  //为了知道队列在哪个位置终止===>使用条件判断，
+                  //即如果所有的数据都已经被访问过了，那么队列后面就不会再追加数据了
+                  if (!this.marked[this.arr[v][i]]) {
+        
+                    //存储子节点到父节点的指向===>当寻找路径的时候，利用这个指向来查找
+                    this.edgeTo[this.arr[v][i]] = v
+        
+                    //将数据追加到数列中，并且把该数据标示为已经访问
+                    //===>因为追加到数列当中的所有元素都 将会 被访问
+                    this.marked[this.arr[v][i]] = true
+                    queue.push(this.arr[v][i])
+                  }
+                }
+              }
+            }
+        
+            /**
+             *  [寻找某个顶点到另一个顶点的最短路径]
+             *  @method
+             *  @param  {[Number]} source [出发的点]
+             *  @param  {[Number]} target [最终到达的点]
+             *  @return {[type]}        [description]
+             */
+            Graph.prototype.pathTo = function(source, target) {
+              //因为在广度优先搜索中，已经将全部的点都搜索过了
+              //那么如果这个目标点没有被搜索过的话，说明它不存在
+              if (!this.marked[target]) {
+                return console.log('can not find ' + target);
+              }
+        
+              //因为target在bfs中都是唯一的，且有与上一个点的联系
+              //因此，从target开始向上查找，直到找到source（bfs是以source来查找的）
+              let path = []
+        
+              //起始值目标，终点值source，过程this.edgeTo
+              for (let i = target; i != source; i = this.edgeTo[i]) {
+                path.push(i)
+              }
+              path.push(source)
+        
+              this.showPath(path)
+            }
+        
+            //显示路径
+            Graph.prototype.showPath = function(path) {
+              let str = ''
+              while (path.length > 0) {
+                if (path.length > 1) {
+                  str += path.pop() + ' ===> '
+                } else {
+                  str += path.pop()
+                }
+              }
+              console.log(str)
+            }
+        
+            //拓扑结构
+            Graph.prototype.topSort = function() {
+              //栈用于存储访问过的数据
+              let stack = []
+        
+              //用于存储数据是否被访问过，并全部初始化为false
+              let visited = []
+              for (let i = 0; i < this.vertices; i++) {
+                visited[i] = false
+              }
+        
+              // 从第0个顶点开始访问，如同深度优先搜索。但是最终会记录下搜索的数据的顺序
+              for (let i = 0; i < this.vertices; i++) {
+                if (visited[i] === false) {
+                  this.topSortHelper(i, visited, stack)
+                }
+              }
+        
+              //根据记录的数据的顺序来访问真实数据
+              for (let i = 0; i < stack.length; i++) {
+                if (stack[i] !== undefined && stack[i] !== false) {
+                  console.log(this.vertexList[stack[i]])
+                }
+              }
+            }
+        
+            //拓扑结构辅助函数
+            Graph.prototype.topSortHelper = function(v, visited, stack) {
+              visited[v] = true
+              stack.push(v)
+              for (let i = 0; i < this.arr[v].length; i++) {
+                if (!visited[this.arr[v][i]]) {
+                  this.topSortHelper(this.arr[v][i], visited, stack)
+                }
+              }
+            }
+        
+            //实例化图
+            let graph = new Graph(8)
+            graph.init()
+            graph.addEdge(0, 1)
+            graph.addEdge(1, 2)
+            graph.addEdge(1, 3)
+            graph.addEdge(2, 4)
+            graph.addEdge(2, 5)
+        
+            console.log('显示图结构')
+            graph.showGraph()
+        
+            console.log('深度优先搜索')
+            graph.dfs(0)
+            //注意在搜索的时候要先把之前的搜索给去掉，不然就全标记为搜索过了
+        
+            // console.log('广度优先搜索')
+            // graph.bfs(0)
+        
+            // console.log('显示路径')
+            // graph.pathTo(0, 1)
+            // graph.pathTo(0, 2)
+            // graph.pathTo(0, 3)
+            // graph.pathTo(0, 4)
+            // graph.pathTo(0, 5)
+        
+            graph.vertexList = ["CS1", "CS2", "Data Structures", "Assembly Language", "Operating Systems", "Algorithms", "promise", "silence"]
+            console.log('拓扑排序')
+            graph.topSort()
+    
+
 排序算法
+
+- 基本排序算法
+  - 冒泡排序
+    - 它是最慢的排序算法之一，但也是一种最容易实现的排 序算法。 
+    - 数据值会像气泡一样从数组的一端漂 浮到另一端。 
+  - 选择排序
+  - 插入排序
+  - 速度：插入排序最快> 选择排序> 冒泡排序最慢
+            //冒泡排序--升序
+            function bubbleSortUp(arr) {
+        
+              for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < arr.length - i; j++) {
+                  if (arr[j] > arr[j + 1]) {
+                    let temp = arr[j]
+                    arr[j] = arr[j + 1]
+                    arr[j + 1] = temp
+                  }
+                }
+              }
+              return arr
+            }
+        
+            //选择排序
+            function selectSortUp(arr) {
+        
+              for (let i = 0; i < arr.length; i++) {
+                for (let j = i + 1; j < arr.length; j++) {
+                  if (arr[i] > arr[j]) {
+                    let temp = arr[i]
+                    arr[i] = arr[j]
+                    arr[j] = temp
+                  }
+                }
+              }
+              return arr
+            }
+        
+            //插入排序
+            function insertionSortUp(arr) {
+        
+              //遍历数组，选择需要插入的元素
+              for (let i = 0; i < arr.length - 1; i++) {
+        
+                //记录下这个时候这个待插入的数据
+                let temp = arr[i]
+                j = i
+        
+                //在这个数组的j前面的最后一个元素跟这个临时数据比较
+                //如果临时数据比较小的话，那么这个数组的元素就要往后挪一下
+                //当循环条件不满足的时候，说明这个数据已经找到了合适的位置
+                //此时将临时数据插入即可
+                while (j > 0 && arr[j - 1] >= temp) {
+                  arr[j] = arr[j - 1]
+                  j--
+                }
+                arr[j] = temp
+              }
+              return arr
+            }
+        
+        
+            let arr = []
+            for (let i = 0; i < 20000; i++) {
+              arr.push(parseInt(Math.random() * 5000))
+            }
+        
+            // //计时开始
+            // let start1 = Date.now()
+            // console.log(bubbleSortUp(arr))
+            // //计时结束
+            // let end1 = Date.now()
+            // console.log(end1 - start1)//1667ms
+        
+            // //计时开始
+            // let start2 = Date.now()
+            // console.log(selectSortUp(arr))
+            // //计时结束
+            // let end2 = Date.now()
+            // console.log(end2 - start2)//970ms
+        
+            //计时开始
+            let start3 = Date.now()
+            console.log(insertionSortUp(arr))
+            //计时结束
+            let end3 = Date.now()
+            console.log(end3 - start3) //418ms
+
+
+
+- 高级排序算法
+  - 希尔排序
+            let arr = []
+            for (let i = 0; i < 1000000; i++) {
+              arr.push(parseInt(Math.random() * 50000))
+            }
+        
+            //希尔排序，在插入排序的基础之上改进了排序的间隔===>由大间隔到小间隔
+            function shellsort(arr) {
+              let gaps = [701, 301, 132, 57, 23, 10, 4, 1]
+              for (let g = 0; g < gaps.length; g++) {
+                for (let i = arr[g]; i < arr.length; i++) {
+                  let temp = arr[i]
+                  let j = i
+                  for (j; j >= gaps[g] && arr[j - gaps[g]] > temp; j -= gaps[g]) {
+                    arr[j] = arr[j - gaps[g]]
+                  }
+                  arr[j] = temp
+                }
+              }
+              return arr
+            }
+        
+            let start = Date.now()
+            console.log(shellsort(arr))
+            let end = Date.now()
+            console.log(end - start)
+            //100万的数据花了3344ms
+            //10万的数据花了80ms
+            //通过改变gaps可以很有效的缩短时间
+
+
+
+
+
+- 归并排序
+  - 自顶向下的归并排序 ：。。。。。。。。。。（深奥？）
+  - 自底向上的归并排序 
+            function mergeSort(arr) {
+              //如果数组成都小于2，那么就不需要合并了
+              if (arr.length < 2) {
+                return arr
+              }
+        
+              //step用于将数组分成一小份一小份的
+              let step = 1
+              let left, right
+        
+              //只有当step大于等于数组长度的时候，才能说明数组已经完全合并了
+              while (step < arr.length) {
+                //设定初始值left从0到step，right从step到2*step
+                left = 0
+                right = step
+        
+                //只有当最右边的数据所在位置小于数组长度时才能循环
+                while (right + step <= arr.length) {
+        
+                  //合并小数组
+                  mergeArrays(arr, left, left + step, right, right + step)
+                  //改变数组初始值，即合并同行其他的数组
+                  left = right + step
+                  right = left + step
+                }
+        
+                //最后循环跳出的时候,right+step>arr.length,此时右边的终止点应该是arr.length
+                if (right < arr.length) {
+                  mergeArrays(arr, left, left + step, right, arr.length)
+                }
+        
+                //完成了一次合并之后，非最后一个数组的数组的长度都翻倍了，因此step需要翻倍
+                step *= 2
+              }
+        
+              return arr
+            }
+        
+            function mergeArrays(arr, startLeft, stopLeft, startRight, stopRight) {
+              //生成两个空数组，数组长度最后需要加1，用来存哨兵值
+              let leftArr = new Array(stopLeft - startLeft + 1)
+              let rightArr = new Array(stopRight - startRight + 1)
+        
+              //将原数组的对应值复制给新生成的数组
+              let j = startLeft
+              for (let i = 0; i < leftArr.length - 1; i++) {
+                leftArr[i] = arr[j]
+                j++
+              }
+        
+              let k = startRight
+              for (let i = 0; i < rightArr.length - 1; i++) {
+                rightArr[i] = arr[k]
+                j
+                k++
+              }
+        
+              //将最后一个值设为哨兵值，方便后面值的比较（无穷大）
+              leftArr[leftArr.length - 1] = Infinity //哨兵值
+              rightArr[rightArr.length - 1] = Infinity //哨兵值
+        
+              //合并数组，将两个数组中的值比较后放入到原数组中
+              let m = 0
+              let n = 0
+              for (let v = startLeft; v < stopRight; v++) {
+                if (leftArr[m] <= rightArr[n]) {
+                  arr[v] = leftArr[m]
+                  m++
+                } else {
+                  arr[v] = rightArr[n]
+                  n++
+                }
+              }
+            }
+        
+        
+            let arr = []
+            for (let i = 0; i < 2000000; i++) {
+              arr.push(parseInt(Math.random() * 50000))
+            }
+        
+            let start = Date.now()
+            console.log(mergeSort(arr));
+            let end = Date.now()
+            console.log(end - start)
+            //100万  480ms
+            //200万  1000ms
+
+
+
+
+
+- 快速排序
+          //快速排序是处理大数据集最快的排序算法之一
+          function fastSorting(arr) {
+            if (arr.length === 0) {
+              return []
+            }
+            let lesser = []
+            let greater = []
+            //基准值
+            let pivot = arr[0]
+      
+            for (let i = 1; i < arr.length; i++) {
+              if (arr[i] < pivot) {
+                lesser.push(arr[i])
+              } else {
+                greater.push(arr[i])
+              }
+            }
+      
+            return fastSorting(lesser).concat(pivot, fastSorting(greater))
+          }
+      
+          let arr = []
+          for (let i = 0; i < 5000000; i++) {
+            arr.push(parseInt(Math.random() * 50000))
+          }
+      
+          let start = Date.now()
+          console.log(fastSorting(arr));
+          let end = Date.now()
+          console.log(end - start)
+          //100万  1468ms
+          //500万  13146ms
+          //1000万 34746ms
+
+
+
+
+
+
+
+
 
 检索算法
 
+- 顺序查找---暴力查找
+  - 查找最大值最小值---将第一个数设为基准，比较（换值）
+  - 使用自组织数据 
+    - 于对数据的查找遵循“80-20 原则” 
+    - “80-20 原则”是指对某一数据集执行的 80% 的查找操作都是对其中 20% 的数据元素 进行查找 
+    - 自组织的方式最终会把这 20% 的数据置于数据集的起始位置 
+    - 类似这种“80-20 原则”的概率分布被称为帕累托（Pareto）分布 
+    - 思想：
+      1. 当查找一个数据的时候，让该数据跟它之前的第n(由自己设置)个数进行交换位置
+      2. 当要查找的这个数据在前20%的时候，就不交换位置了。
+
+
+
+- 二分查找：
+  - 思想
+    1. 将中点设置为（上边界加上下边界）除以 2 
+    2. 如果中点的元素小于查询的值，则将下边界设置为中点元素所在下标加 1 
+    3. . 如果中点的元素大于查询的值，则将上边界设置为中点元素所在下标减 1。 
+    4. 否则中点元素即为要查找的数据，可以进行返回 
+  - 计算重复次数
+    - 先找到该数的位置，然后用两个循环分别向上向下查找，找到count++
+    - 或者直接顺序查找
+
+
+
+
+
+
+
 高级算法
 
+- 动态规则
+  - 动态规划有时被认为是一种与递归相反 的技术。 
+  - 动态规划解决方案从底部开始解决问题，将所有小问题解决掉，然后合并成一个 整体解决方案，从而解决掉整个大问题。 
+    使用递归去解决问题虽然简洁，但效率不高。包括 JavaScript 在内的众多语言，不能高效 地将递归代码解释为机器代码，尽管写出来的程序简洁，但是执行效率低下。但这并不是 说使用递归是件坏事，本质上说，只是那些指令式编程语言和面向对象的编程语言对递归 的实现不够完善，因为它们没有将递归作为高级编程的特性。 
+     
+  - 动态规划实例：计算斐波那契数列 
+    - 递归函数中，有许多值都会被重复计算，因此效率较低
+    - 动态规则中，将之前计算的数据保存了下来，所以效率较高
 
+
+
+
+
+
+
+- 贪心算法
+  - 一种以寻找“优质解”为手段从而达成整体解决方案的算法 
+  - 这些优质的解决 方案称为局部最优解
+  - 将有希望得到正确的最终解决方案，也称为全局最优解 
