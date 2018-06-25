@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>排序算法</title>
+</head>
+
+<body>
+  <script>
+    //冒泡排序--升序
+    function bubbleSortUp(arr) {
+
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < arr.length - i; j++) {
+          if (arr[j] > arr[j + 1]) {
+            let temp = arr[j]
+            arr[j] = arr[j + 1]
+            arr[j + 1] = temp
+          }
+        }
+      }
+      return arr
+    }
+
+    //选择排序
+    function selectSortUp(arr) {
+
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+          if (arr[i] > arr[j]) {
+            let temp = arr[i]
+            arr[i] = arr[j]
+            arr[j] = temp
+          }
+        }
+      }
+      return arr
+    }
+
+    //插入排序
+    function insertionSortUp(arr) {
+
+      //遍历数组，选择需要插入的元素
+      for (let i = 0; i < arr.length - 1; i++) {
+
+        //记录下这个时候这个待插入的数据
+        let temp = arr[i]
+        j = i
+
+        //在这个数组的j前面的最后一个元素跟这个临时数据比较
+        //如果临时数据比较小的话，那么这个数组的元素就要往后挪一下
+        //当循环条件不满足的时候，说明这个数据已经找到了合适的位置
+        //此时将临时数据插入即可
+        while (j > 0 && arr[j - 1] >= temp) {
+          arr[j] = arr[j - 1]
+          j--
+        }
+        arr[j] = temp
+      }
+      return arr
+    }
+
+
+    let arr = []
+    for (let i = 0; i < 20000; i++) {
+      arr.push(parseInt(Math.random() * 5000))
+    }
+
+    // //计时开始
+    // let start1 = Date.now()
+    // console.log(bubbleSortUp(arr))
+    // //计时结束
+    // let end1 = Date.now()
+    // console.log(end1 - start1)//1667ms
+
+    // //计时开始
+    // let start2 = Date.now()
+    // console.log(selectSortUp(arr))
+    // //计时结束
+    // let end2 = Date.now()
+    // console.log(end2 - start2)//970ms
+
+    //计时开始
+    let start3 = Date.now()
+    console.log(insertionSortUp(arr))
+    //计时结束
+    let end3 = Date.now()
+    console.log(end3 - start3) //418ms
+  </script>
+</body>
+
+</html>
