@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>图算法</title>
+</head>
+
+<body>
+  <script>
+    //构建图
+    let Graph = function(v) {
+      //顶点个数
+      this.vertices = v
+      //边的条数
+      this.edges = 0
+      //存储点与点之间的关系
+      this.arr = []
+      //用于判断哪个点已经被访问过了
+      this.marked = []
+      //用于存储点到点的指向
+      this.edgeTo = []
+      //
+      this.vertexList = []
+    }
+
+    //初始化图，生成二维数组
+    Graph.prototype.init = function() {
+      for (let i = 0; i < this.vertices; i++) {
+        this.arr[i] = []
+        // this.arr[i].push('')
+        this.marked[i] = false
+      }
+    }
+
+    //添加边
+    Graph.prototype.addEdge = function(v, w) {
+      this.arr[v].push(w)
+      this.arr[w].push(v)
+      this.edges++
+    }
+
+    //显示图
+    Graph.prototype.showGraph = function() {
+      for (let i = 0; i < this.vertices; i++) {
+        let str = i + '====>'
+        for (let j = 0; j < this.vertices; j++) {
+          if (this.arr[i][j] != undefined) {
+            str += this.arr[i][j] + ' '
+          }
+        }
+        console.log(str)
+      }
+    }
+
+    //深度优先搜索
+    Graph.prototype.dfs = function(v) {
+      this.marked[v] = true
+
+      if (this.arr[v] != undefined) {
+        console.log(v);
+      }
+
+      for (let i = 0; i < this.arr[v].length; i++) {
+        if (!this.marked[this.arr[v][i]]) {
+          this.dfs(this.arr[v][i])
+        }
+      }
+    }
+
+    //广度优先搜索
+    Graph.prototype.bfs = function(s) {
+      //生成一个数列，专门用来存放遍历后的结果
+      //将每一层的数据追加到该队列的后面
+      let queue = []
+      this.marked[s] = true
+      queue.push(s)
+
+      //遍历数列中的元素
+      while (queue.length > 0) {
+        let v = queue.shift()
+
+        if (v !== undefined) {
+          console.log(v)
+        }
+
+        //循环遍历里面当前访问元素的所有子元素，并追加到队列之后
+        for (let i = 0; i < this.arr[v].length; i++) {
+
+          //因为每一个this.arr[v]都是一个数组，所以length属性都是存在的
+          //为了知道队列在哪个位置终止===>使用条件判断，
+          //即如果所有的数据都已经被访问过了，那么队列后面就不会再追加数据了
+          if (!this.marked[this.arr[v][i]]) {
+
+            //存储子节点到父节点的指向===>当寻找路径的时候，利用这个指向来查找
+            this.edgeTo[this.arr[v][i]] = v
+
+            //将数据追加到数列中，并且把该数据标示为已经访问
+            //===>因为追加到数列当中的所有元素都 将会 被访问
+            this.marked[this.arr[v][i]] = true
+            queue.push(this.arr[v][i])
+          }
+        }
+      }
+    }
+
+    /**
+     *  [寻找某个顶点到另一个顶点的最短路径]
+     *  @method
+     *  @param  {[Number]} source [出发的点]
+     *  @param  {[Number]} target [最终到达的点]
+     *  @return {[type]}        [description]
+     */
+    Graph.prototype.pathTo = function(source, target) {
+      //因为在广度优先搜索中，已经将全部的点都搜索过了
+      //那么如果这个目标点没有被搜索过的话，说明它不存在
+      if (!this.marked[target]) {
+        return console.log('can not find ' + target);
+      }
+
+      //因为target在bfs中都是唯一的，且有与上一个点的联系
+      //因此，从target开始向上查找，直到找到source（bfs是以source来查找的）
+      let path = []
+
+      //起始值目标，终点值source，过程this.edgeTo
+      for (let i = target; i != source; i = this.edgeTo[i]) {
+        path.push(i)
+      }
+      path.push(source)
+
+      this.showPath(path)
+    }
+
+    //显示路径
+    Graph.prototype.showPath = function(path) {
+      let str = ''
+      while (path.length > 0) {
+        if (path.length > 1) {
+          str += path.pop() + ' ===> '
+        } else {
+          str += path.pop()
+        }
+      }
+      console.log(str)
+    }
+
+    //拓扑结构
+    Graph.prototype.topSort = function() {
+      //栈用于存储访问过的数据
+      let stack = []
+
+      //用于存储数据是否被访问过，并全部初始化为false
+      let visited = []
+      for (let i = 0; i < this.vertices; i++) {
+        visited[i] = false
+      }
+
+      // 从第0个顶点开始访问，如同深度优先搜索。但是最终会记录下搜索的数据的顺序
+      for (let i = 0; i < this.vertices; i++) {
+        if (visited[i] === false) {
+          this.topSortHelper(i, visited, stack)
+        }
+      }
+
+      //根据记录的数据的顺序来访问真实数据
+      for (let i = 0; i < stack.length; i++) {
+        if (stack[i] !== undefined && stack[i] !== false) {
+          console.log(this.vertexList[stack[i]])
+        }
+      }
+    }
+
+    //拓扑结构辅助函数
+    Graph.prototype.topSortHelper = function(v, visited, stack) {
+      visited[v] = true
+      stack.push(v)
+      for (let i = 0; i < this.arr[v].length; i++) {
+        if (!visited[this.arr[v][i]]) {
+          this.topSortHelper(this.arr[v][i], visited, stack)
+        }
+      }
+    }
+
+    //实例化图
+    let graph = new Graph(8)
+    graph.init()
+    graph.addEdge(0, 1)
+    graph.addEdge(1, 2)
+    graph.addEdge(1, 3)
+    graph.addEdge(2, 4)
+    graph.addEdge(2, 5)
+
+    console.log('显示图结构')
+    graph.showGraph()
+
+    console.log('深度优先搜索')
+    graph.dfs(0)
+    //注意在搜索的时候要先把之前的搜索给去掉，不然就全标记为搜索过了
+
+    // console.log('广度优先搜索')
+    // graph.bfs(0)
+
+    // console.log('显示路径')
+    // graph.pathTo(0, 1)
+    // graph.pathTo(0, 2)
+    // graph.pathTo(0, 3)
+    // graph.pathTo(0, 4)
+    // graph.pathTo(0, 5)
+
+    graph.vertexList = ["CS1", "CS2", "Data Structures", "Assembly Language", "Operating Systems", "Algorithms", "promise", "silence"]
+    console.log('拓扑排序')
+    graph.topSort()
+  </script>
+</body>
+
+</html>
