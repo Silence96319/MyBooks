@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>快速排序</title>
+</head>
+
+<body>
+  <script>
+    //快速排序是处理大数据集最快的排序算法之一
+    function fastSorting(arr) {
+      if (arr.length === 0) {
+        return []
+      }
+      let lesser = []
+      let greater = []
+      //设定基准值
+      let pivot = arr[0]
+
+      for (let i = 1; i < arr.length; i++) {
+        if (arr[i] < pivot) {
+          lesser.push(arr[i])
+        } else {
+          greater.push(arr[i])
+        }
+      }
+
+      //递归思想
+      return fastSorting(lesser).concat(pivot, fastSorting(greater))
+    }
+
+    let arr = []
+    for (let i = 0; i < 5000000; i++) {
+      arr.push(parseInt(Math.random() * 50000))
+    }
+
+    let start = Date.now()
+    console.log(fastSorting(arr));
+    let end = Date.now()
+    console.log(end - start)
+    //100万  1468ms
+    //500万  13146ms
+    //1000万 34746ms
+  </script>
+
+</body>
+
+</html>
