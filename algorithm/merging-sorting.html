@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>归并排序</title>
+</head>
+
+<body>
+  <script>
+    function mergeSort(arr) {
+      //如果数组成都小于2，那么就不需要合并了
+      if (arr.length < 2) {
+        return arr
+      }
+
+      //step用于将数组分成一小份一小份的
+      let step = 1
+      let left, right
+
+      //只有当step大于等于数组长度的时候，才能说明数组已经完全合并了
+      while (step < arr.length) {
+        //设定初始值left从0到step，right从step到2*step
+        left = 0
+        right = step
+
+        //只有当最右边的数据所在位置小于数组长度时才能循环
+        while (right + step <= arr.length) {
+
+          //合并小数组
+          mergeArrays(arr, left, left + step, right, right + step)
+          //改变数组初始值，即合并同行其他的数组
+          left = right + step
+          right = left + step
+        }
+
+        //最后循环跳出的时候,right+step>arr.length,此时右边的终止点应该是arr.length
+        if (right < arr.length) {
+          mergeArrays(arr, left, left + step, right, arr.length)
+        }
+
+        //完成了一次合并之后，非最后一个数组的数组的长度都翻倍了，因此step需要翻倍
+        step *= 2
+      }
+
+      return arr
+    }
+
+    function mergeArrays(arr, startLeft, stopLeft, startRight, stopRight) {
+      //生成两个空数组，数组长度最后需要加1，用来存哨兵值
+      let leftArr = new Array(stopLeft - startLeft + 1)
+      let rightArr = new Array(stopRight - startRight + 1)
+
+      //将原数组的对应值复制给新生成的数组
+      let j = startLeft
+      for (let i = 0; i < leftArr.length - 1; i++) {
+        leftArr[i] = arr[j]
+        j++
+      }
+
+      let k = startRight
+      for (let i = 0; i < rightArr.length - 1; i++) {
+        rightArr[i] = arr[k]
+        j
+        k++
+      }
+
+      //将最后一个值设为哨兵值，方便后面值的比较（无穷大）
+      leftArr[leftArr.length - 1] = Infinity //哨兵值
+      rightArr[rightArr.length - 1] = Infinity //哨兵值
+
+      //合并数组，将两个数组中的值比较后放入到原数组中
+      let m = 0
+      let n = 0
+      for (let v = startLeft; v < stopRight; v++) {
+        if (leftArr[m] <= rightArr[n]) {
+          arr[v] = leftArr[m]
+          m++
+        } else {
+          arr[v] = rightArr[n]
+          n++
+        }
+      }
+    }
+
+
+    let arr = []
+    for (let i = 0; i < 5000000; i++) {
+      arr.push(parseInt(Math.random() * 50000))
+    }
+
+    let start = Date.now()
+    console.log(mergeSort(arr));
+    let end = Date.now()
+    console.log(end - start)
+    //100万  480ms
+    //200万  1000ms
+    //500万  3129ms
+  </script>
+</body>
+
+</html>
