@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>动态规则</title>
+</head>
+
+<body>
+  <script>
+    //计算斐波那契数列
+    function fib(n) {
+      let num = 1
+      let nextnum = 1
+      let sum = 0
+      for (let i = 2; i < n; i++) {
+        sum = num + nextnum
+        num = nextnum
+        nextnum = sum
+      }
+      return sum
+    }
+    //console.log(fib(10));
+
+    //最长公共字符串
+    function commonStr(str1, str2) {
+      let max = 0
+      let index = 0
+      //生成的数组成都要加1
+      let strArr = new Array(str1.length + 1)
+      //生成二维数，行和列的长度都加1
+      //因为不管后面在计算的时候需要第一组数据中的0（第一行和第一列）
+      for (let i = 0; i <= str1.length; i++) {
+        strArr[i] = new Array(str2.length + 1)
+        for (let j = 0; j <= str2.length; j++) {
+          strArr[i][j] = 0
+        }
+      }
+
+
+      //将整个二位数组看作是一个有行有列的表格
+      //当字符相同的时候，交集位置加1（根据斜对角来定）
+      for (let i = 0; i <= str1.length; i++) {
+        for (let j = 0; j <= str2.length; j++) {
+          //将每一列每一行的第一个数设置为0
+          if (i === 0 || j === 0) {
+            strArr[i][j] = 0
+          }
+          //当字符相等的时候，它的长度等于前面的两个字符相等的长度加1
+          else if (str1[i - 1] == str2[j - 1]) {
+            strArr[i][j] = strArr[i - 1][j - 1] + 1
+          }
+          //如果不想等，那么就要重置这个计数了
+          else {
+            strArr[i][j] = 0
+          }
+          //将最大额字符串长度保存到max中，并且记录此时的索引
+          if (max < strArr[i][j]) {
+            max = strArr[i][j]
+            index = i
+          }
+        }
+      }
+
+      let str = ''
+      if (max === 0) {
+        return ''
+      } else {
+        //根据记录的索引，以及max值，推导出公共字符串的第一个位置，遍历至最后一个位置
+        for (let i = index - max; i < index; i++) {
+          str += str1[i]
+        }
+
+        return str
+      }
+    }
+
+    //console.log(commonStr('123456789', '467654321'))
+
+    //背包问题： 递归解决方案
+    // function knapsack(capacity, size, value, n) {
+    //   if (n === 0 || capacity === 0) {
+    //     return 0
+    //   }
+    //   if (size[n - 1] > capacity) {
+    //     return knapsack(capacity, size, value, n - 1)
+    //   } else {
+    //     return Math.max(value[n - 1] + knapsack(capacity - size[n - 1], size, value, n - 1), knapsack(capacity, size, value, n - 1))
+    //   }
+    // }
+    // let value = [4, 5, 10, 11, 13]
+    // let size = [3, 4, 7, 8, 9]
+    // let capacity = 16
+    // let n = 5
+    // console.log(knapsack(capacity, size, value, n));
+
+    //背包问题：动态规划方案
+    /**
+     *  @param  {[type]}  capacity [背包的容积]
+     *  @param  {[type]}  size     [每件物品的体积组成的数组]
+     *  @param  {[type]}  value    [每件物品相应的价格组成的数组]
+     *  @param  {[type]}  n        [物品的数量]
+     *  @return {[type]}           [背包中装下物品的最高价格]
+     */
+    function dKnapsack(capacity, size, value, n) {
+      //初始化一个二维数组
+      let k = []
+      for (let i = 0; i <= n; i++) {
+        k[i] = []
+      }
+
+      //当物品数量和背包容积增加时，相对应的能容下的最高价格的物品
+      //物品数量递增
+      for (let i = 0; i <= n; i++) {
+
+        //当物品数量一定时，背包的容积依次递增
+        for (let j = 0; j <= capacity; j++) {
+
+          //将行和列的开始位置 初始化为0
+          if (i === 0 || j === 0) {
+            k[i][j] = 0
+          }
+
+          //如果此时的背包数为i,背包容积为j
+          //第i个物品的体积小于背包的容积
+          //第一种情况为：含有第i个物品时的最高价格 =====> 但是其他值有可能取不到最佳值
+          //  即为 第i个物品的价格 + 物品数减1容积减区这个物品体积时的背包所能装下的最高价格
+          //第二种情况：不包含这个物品时 =====> 有可能第i个物品非常合适而不能达到最佳值
+          //  即为 有i-1个物品且在此背包容积下 能容下的最高价格
+          //根据两者的缺点 ====> 最后将两者比较，取结果自高者
+          else if (size[i - 1] <= j) {
+            k[i][j] = Math.max(value[i - 1] + k[i - 1][j - size[i - 1]], k[i - 1][j])
+          }
+
+          //由于物品体积大于背包的体积，所以该物品不能放入到背包，背包的最高价格与物品数-1的时候相同
+          else {
+            k[i][j] = k[i - 1][j]
+          }
+        }
+
+      }
+      return k[n][capacity]
+    }
+
+    let value = [13, 5, 10, 11, 4]
+    let size = [9, 4, 7, 8, 3]
+    let capacity = 16
+    let n = 5
+    console.log(dKnapsack(capacity, size, value, n)); //23
+    //  ====================== k的取值（为了方便观察将其放入对象中了） =================
+    // {
+    //   0: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //   1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 13, 13, 13, 13, 13, 13, 13],
+    //   2: [0, 0, 0, 0, 5, 5, 5, 5, 5, 13, 13, 13, 13, 18, 18, 18, 18],
+    //   3: [0, 0, 0, 0, 5, 5, 5, 10, 10, 13, 13, 15, 15, 18, 18, 18, 23],
+    //   4: [0, 0, 0, 0, 5, 5, 5, 10, 11, 13, 13, 15, 16, 18, 18, 21, 23],
+    //   5: [0, 0, 0, 4, 5, 5, 5, 10, 11, 13, 14, 15, 17, 18, 19, 21, 23]
+    // }
+  </script>
+
+</body>
+
+</html>
