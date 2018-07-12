@@ -293,7 +293,72 @@ JavaScript数据结构与算法
   - 循环链表和单向链表相似，节点类型都是一样的。唯一的区别是，在创建循环链表时，让 其头节点的 next 属性指向它本身 
   - head.next = head 
 
+```javascript
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>链表</title>
+</head>
+
+<body>
+  <script>
+  //问题：一共41人形成一个圈，从第一人开始数，每数到第三个人，该人就出局，
+  //最后留下来的两人是哪两个
+    var arr = []
+
+    //创建包含对象的数组
+    for (var i = 1; i < 42; i++) {
+      arr.push(new node(i))
+    }
+
+    //关联数组中的对象
+    for (var j = 0; j < 41; j++) {
+      if (j < 40) {
+        arr[j].next = arr[j + 1]
+      } else {
+        arr[j].next = arr[0]
+      }
+    }
+
+    //调用删除数据的函数
+    remove(arr)
+
+    //对象构造函数
+    function node(data) {
+      this.data = data
+      this.next = null
+    }
+
+    //找到相关的数据并在数组中删除它
+    function find(item) {
+      for (var i = 0; i < 41; i++) {
+        if (item == arr[i]) {
+          var newnode = arr.splice(i, 1)
+        }
+      }
+      return newnode[0]
+    }
+
+    //循环查找并删除，最终打印剩余的数组
+    function remove(arr) {
+      var current = arr[0]
+      while (arr.length > 2) {
+        var remove = find(current.next.next)
+        current.next.next = remove.next
+        current = current.next.next
+      }
+      console.log(arr);
+    }
+  </script>
+</body>
+
+</html>
+
+```
 
 
 
